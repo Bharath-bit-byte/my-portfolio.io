@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arduino Accident Detection Code</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        pre {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Arduino Automatic Accident Detection and Alert System Code</h1>
+    <p>This is the Arduino sketch for an accident detection alert system using ADXL345 accelerometer, GPS, GSM module, and LCD display.</p>
+    <pre><code>#include &lt;SoftwareSerial.h&gt;
+#include &lt;AltSoftSerial.h&gt;
+#include &lt;TinyGPS++.h&gt;
+
+#include &lt;Wire.h&gt;
+// #include &lt;Adafruit_ADXL345_U.h&gt;
+
+
+// /* Assign a unique ID to this sensor at the same time */
+// Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
+#include &lt;LiquidCrystal_I2C.h&gt;
+LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display
+const String PHONE = "+919398063635";
+#define rxPin 5
+#define txPin 6
+String accSide = "";
+SoftwareSerial sim800(rxPin, txPin);
+AltSoftSerial neogps;
+TinyGPSPlus gps;
+#define ADXL345_ADDRESS (0x53) // ADXL345 I2C address
+float readings[3];	// Array to store x, y, z readings
+float avg_readings[3]; // Array to store x, y, z readings
+float X_out, Y_out, Z_out; // Outputs
+uint8_t sensorAvgReadings = 100;
+String sms_status, sender_number, received_date, msg;
+boolean ignition_status = false;
+//boolean tracking_status = false;
+bool flag = true;
+unsigned long previousMillis = 0; // last time update
+long interval = 60000;	// interval at which to do something (milliseconds)
+
+//for timers
+const unsigned long interval1s = 1000;	// 1 second in milliseconds
+const unsigned long interval5s = 5000;	 // 5 seconds in milliseconds
+const unsigned long interval10s = 10000; // 10 seconds in milliseconds
+unsigned long previousTime1s = 0;
+unsigned long previousTime5s = 0;
+unsigned long previousTime10s = 0;
+bool executed1s = false;
+bool executed5s = false;
+bool executed10s = false;
+//end for timers
+//buzzer
+const int buzzerPin = 11;
+//checking gsm module
+void okcheck() {
+    unsigned char rcr;
+    do {
+        rcr = sim800.read();
+    } while (rcr != 'K');
+    Serial.println("at ok");
+}
+void gsminit() {
+    sim800.write("AT\r\n");
+    okcheck();
+    sim800.write("ATE0\r\n");
+    okcheck();
+    sim800.write("AT+CMGF=1\r\n");
+//okcheck();
+}
+void setup() {
+// put your setup code here, to run once:
+
+    pinMode(buzzerPin, OUTPUT);
+    buzzerOff();
+//delay(7000);
+    delay(500);
+    lcd.init();
+    lcd.clear();
+    Serial.begin(9600);
+    sim800.begin(9600);
+    neogps.begin(9600);
+// Print a message to the LCD.
+    lcd.backlight();
+    lcd.setCursor(0, 0);
+    lcd.print("Welcome");
+    delay(1000);
+    lcd.setCursor(0, 0);
+    lcd.print("Accident detection");
+    lcd.setCursor(0, 1);
+    lcd.print("Alert system");
+//delay(2000);
+    lcd_cl();
+    lcd.print("Initializing ADXL");
+    lcd.setCursor(2, 1);
+    lcd.print("module");
+    init_ADXL345();
+//delay(2000);
+    lcd_cl();
+    lcd.print("Initializing GPS");
+    lcd.setCursor(2, 1);
+    lcd.print("module");
+//buzzerr(500);
+    while (flag) {
+
+        if (gps.encode(neogps.read())) {
+            flag = false;
+        }
+    }
+//delay(1000);
+    lcd_cl();
+    lcd.print("Initialized GPS");
+    lcd.setCursor(2, 1);
+    lcd.print("module");
+    Serial.println("neogps Software serial initialized");
+    sms_status = "";
+    sender_number = "";
+    received_date = "";
+    msg = "";
+    lcd_cl();
+    lcd.print("Initializing GSM");
+    lcd.setCursor(2, 1);
+    lcd.print("module");
+    gsminit();
+    lcd_cl();
+    lcd.print("Initialized GSM");
+    lcd.setCursor(2, 1);
+    lcd.print("module");
+    sim800.print("AT+CMGF=1\r"); //SMS text mode
+    delay(1000);
+    lcd_cl();
+    lcd.print("Registerednumber");
+    lcd.setCursor(2, 1);
+    lcd.print(PHONE);
+    readAvgADXL345();
+    printAvgADXl345();
+
+    make_call();
+}
+void loop() {
+// put your main code here, to run repeatedly:
+    lcd_cl();
+    lcd.print("checking system");
+    lcd.setCursor(2, 1);
+    lcd.print("Happy Journey");
+    checkAccident();
+    if (flag) {
+//sendSmsGPS(accSide);
+        timerSendSms();
+        lcd.clear();
+        lcd.print("SMS sent");
+    }
+    delay(1000);
+}
+void init_ADXL345() {
+    Wire.beginTransmission(ADXL345_ADDRESS);
+    Wire.write(0x2D); // Power register
+    Wire.write(8);	// Measurement mode
+    Wire.endTransmission();
+    delay(10);
+}
+void readADXL345() {
+    Wire.beginTransmission(ADXL345_ADDRESS);
+    Wire.write(0x32); // Start reading from register 0x32 (X0)
+    Wire.endTransmission(false);
+    Wire.requestFrom(ADXL345_ADDRESS, 6, true); // Request 6 bytes (x, y, z)
+    for (int i = 0; i &lt; 3; i++) {
+        readings[i] = Wire.read() | (Wire.read() &lt;&lt; 8);
+
+    }
+}
+void readAvgADXL345() {
+//int sensorAvgReadings = 100;
+    for (int i = 0; i &lt; sensorAvgReadings; i++) {
+        readADXL345();
+        avg_readings[0] += readings[0] / 256;
+        avg_readings[1] += readings[1] / 256;
+        avg_readings[2] += readings[2] / 256;
+    }
+    X_out = avg_readings[0] /= sensorAvgReadings;
+    Y_out = avg_readings[1] /= sensorAvgReadings;
+    Z_out = avg_readings[2] /= sensorAvgReadings;
+}
+void printAvgADXl345() {
+    Serial.print("Xa= ");
+    Serial.print(X_out);
+    Serial.print(" Ya= ");
+    Serial.print(Y_out);
+    Serial.print(" Za= ");
+    Serial.println(Z_out);
+}
+void checkAccident() {
+    readAvgADXL345();
+    if (X_out &gt; 0.55) {
+        lcd_cl();
+        accSide = "Left";
+        flag = true;
+        lcd.print("Left Accident");
+    } else if (X_out &lt; -0.55) {
+        lcd_cl();
+        accSide = "Right";
+
+        flag = true;
+        lcd.print("Right Accident");
+    } else if (Y_out &gt; 0.55) {
+        lcd_cl();
+        accSide = "Back";
+        flag = true;
+        lcd.print("Back Accident");
+
+
+    } else if (Y_out &lt; -0.55) {
+        lcd_cl();
+        accSide = "Front";
+        flag = true;
+        lcd.print("Front Accident");
+    } else {
+        flag = false;
+        lcdDisplayInfo();
+        displayInfo();
+        printAvgADXl345();
+//digitalWrite(buzzerPin,HIGH);
+    }
+}
+void lcd_cl() {
+    delay(2000);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+}
+
+
+
+void sendSmsGPS(String text) {
+// Can take up to 60 seconds
+//boolean newData = false;
+
+    buzzerOn(100);
+    boolean newData = true;
+
+
+    for (unsigned long start = millis(); millis() - start &lt; 2000;) {
+        while (neogps.available()) {
+            if (gps.encode(neogps.read())) {
+                newData = true;
+            }
+        }
+    }
+    Serial.println("in send loc");
+
+
+    if (newData) //If newData is true
+    {
+        while (neogps.available() &gt; 0) {
+// Serial.println("in loop");
+            if (gps.encode(neogps.read())) {
+                displayInfo();
+            }
+        }
+
+
+        Serial.println("new data");
+        float flat, flon;
+        unsigned long age;
+        Serial.print("Latitude= ");
+        Serial.print(gps.location.lat(), 6);
+        Serial.print(" Longitude= ");
+        Serial.println(gps.location.lng(), 6);
+        newData = false;
+        delay(300);
+///*
+
+        sim800.print("AT+CMGF=1\r");
+        delay(1000);
+        sim800.print("AT+CMGS=\"" + PHONE + "\"\r");
+        delay(1000);
+        sim800.print(text);
+        sim800.print(" Accident occured clik on link to see location ");
+        sim800.print("http://maps.google.com/maps?q=loc:");
+        sim800.print(gps.location.lat(), 6);
+        sim800.print(",");
+        sim800.print(gps.location.lng(), 6);
+        delay(100);
+        sim800.write(0x1A);
+        delay(1000);
+        Serial.println("loc sent");
+        Serial.print(gps.location.lat(), 6);
+        Serial.print(",");
+        Serial.println(gps.location.lng(), 6);
+    }
+    make_call();
+    buzzerOn(100);
+}
+void displayInfo() {
+
+
+    Serial.print(F("Location: "));
+    if (gps.location.isValid()) {
+        Serial.print(gps.location.lat(), 6);
+        Serial.print(F(","));
+        Serial.print(gps.location.lng(), 6);
+
+    } else {
+        Serial.print(F("INVALID"));
+
+    }
+
+
+    Serial.print(F(" Date/Time: "));
+    if (gps.date.isValid()) {
+        Serial.print(gps.date.month());
+        Serial.print(F("/"));
+        Serial.print(gps.date.day());
+        Serial.print(F("/"));
+        Serial.print(gps.date.year());
+    } else {
+        Serial.print(F("INVALID"));
+    }
+
+
+    Serial.print(F(" "));
+    if (gps.time.isValid()) {
+        if (gps.time.hour() &lt; 10) Serial.print(F("0"));
+        Serial.print(gps.time.hour());
+        Serial.print(F(":"));
+        if (gps.time.minute() &lt; 10) Serial.print(F("0"));
+        Serial.print(gps.time.minute());
+
+        Serial.print(F(":"));
+        if (gps.time.second() &lt; 10) Serial.print(F("0"));
+        Serial.print(gps.time.second());
+        Serial.print(F("."));
+        if (gps.time.centisecond() &lt; 10) Serial.print(F("0"));
+        Serial.print(gps.time.centisecond());
+    } else {
+        Serial.print(F("INVALID"));
+    }
+    Serial.println();
+
+}
+
+
+void lcdDisplayInfo() {
+    lcd_cl();
+    if (gps.location.isValid()) {
+        lcd.print("Lat:");
+        lcd.print(gps.location.lat(), 6);
+        lcd.setCursor(0, 1);
+        lcd.print("Lng:");
+        lcd.print(gps.location.lng(), 6);
+    } else {
+        lcd.print("Please Wait");
+        lcd.setCursor(0, 1);
+        lcd.print("GPS data loading");
+    }
+}
+
+
+void timerSendSms() {
+    unsigned long currentTime = millis();
+// Check for 1 second interval
+    if (currentTime - previousTime1s &gt;= interval1s &amp;&amp; !executed1s) {
+// Perform action for 1 second
+// Add your code here
+        Serial.println("*");
+        sendSmsGPS(accSide);
+        executed1s = true;	// Set flag to prevent repeated execution
+        previousTime1s = currentTime; // Reset the timer
+    }
+// Check for 5 second interval
+    if (currentTime - previousTime5s &gt;= interval5s &amp;&amp; !executed5s &amp;&amp; executed1s) {
+// Perform action for 5 seconds
+
+// Add your code here
+        Serial.println("");
+        sendSmsGPS(accSide);
+        executed5s = true;	// Set flag to prevent repeated execution
+        previousTime5s = currentTime; // Reset the timer
+    }
+// Check for 10 second interval
+    if (currentTime - previousTime10s &gt;= interval10s &amp;&amp; !executed10s &amp;&amp; executed5s) {
+// Perform action for 10 seconds
+// Add your code here
+        Serial.println("*");
+        sendSmsGPS("2 " + accSide);
+        executed10s = true;	// Set flag to prevent repeated execution
+        previousTime10s = currentTime; // Reset the timer
+    }
+ // If all actions have been executed, wait for 10 seconds before resetting
+    if (executed1s &amp;&amp; executed5s &amp;&amp; executed10s) {
+        if (currentTime - previousTime10s &gt;= interval10s) {
+            executed1s = executed5s = executed10s = false; // Reset flags
+            previousTime1s = previousTime5s = previousTime10s = currentTime;
+        }
+    }
+    delay(2000);
+    make_call();
+}
+
+
+void buzzerOn(uint8_t wait) {
+    digitalWrite(buzzerPin, LOW);
+    delay(wait * 30);
+    digitalWrite(buzzerPin, HIGH);
+}
+// void buzzerOn(uint8_t wait) {
+
+//  for (uint8_t i = 0; i &lt; 30; i++) {
+//	digitalWrite(buzzerPin, !digitalRead(buzzerPin));
+//	delay(wait);
+//  }
+//  digitalWrite(buzzerPin, HIGH);
+// }
+void buzzerOff() {
+    digitalWrite(buzzerPin, HIGH);
+}
+void make_call() {
+    Serial.println("calling");
+    delay(500);
+    lcd.clear();
+    lcd.print("Calling...");
+    sim800.println("ATD+919398063635;");
+    okcheck();
+    delay(500);
+    sim800.println("ATD+919398063635;");
+    okcheck();
+    delay(20000); // wait for 20 seconds...
+    lcd.clear();
+    lcd.print("Call Ended");
+    sim800.println("ATH"); //hang up
+    Serial.println("call ended");
+    delay(500);
+//  Serial.println("calling");
+// delay(500);
+// lcd.clear();
+// lcd.print("Calling...");
+// sim800.println("ATD+916301615840;");
+// okcheck();
+}</code></pre>
+</body>
+</html>

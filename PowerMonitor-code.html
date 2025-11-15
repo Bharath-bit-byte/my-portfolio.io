@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arduino Code Display</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        pre {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>IoT-based Smart Energy Meter and controller Code</h1>
+    <pre><code>#define AUTH "dTJZnLJ0CAtmErCtTudHcDnHBpwnUq3Z"  // You should get Auth Token in the Blynk App.
+#define WIFI_SSID "powermeter"                  //Enter Wifi Name
+#define WIFI_PASS "123456789"                   //Enter wifi Password
+
+
+#define BLYNK_TEMPLATE_ID "TMPL31qyJ4f6D"
+#define BLYNK_TEMPLATE_NAME "energymeter"
+#define BLYNK_AUTH_TOKEN "dTJZnLJ0CAtmErCtTudHcDnHBpwnUq3Z"
+
+#include &lt;BlynkSimpleEsp32.h&gt;
+
+#include &lt;Wire.h&gt;
+#include &lt;LiquidCrystal_I2C.h&gt;
+
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+#define BLYNK_PRINT Serial
+
+#define wifiLed 2  //D2
+
+
+// define the GPIO connected with Relays and switches
+#define RelayPin1 32  //D32
+#define RelayPin2 33  //D33
+
+#define detectPzem 0  //change to 1 if you want to explicitly turn on kit only if pzem is detected
+
+#define VPIN_BUTTON_1 V1
+#define VPIN_BUTTON_2 V2
+#define VPIN_BUTTON_3 V3
+#define VPIN_BUTTON_4 V4
+#define VPIN_BUTTON_5 V5
+// #define VPIN_BUTTON_2 V6
+
+#define SwitchPin1 25  //d25
+#define SwitchPin2 26  //d26
+
+#define buzzer 14  //d14
+
+int toggleState_1 = 1;  //Define integer to remember the toggle state for relay 1
+int toggleState_2 = 1;  //Define integer to remember the toggle state for relay 1
+
+
+int wifiFlag = 0;
+
+#define overLoadThreshold 200
+
+//pzem
+
+////// serial(1) = pin27=RX green, pin26=TX white
+////// serial(2) = pin16=RXgreen , pin17=TX white
+
+// HardwareSerial PzemSerial2(2);     // Use hwserial UART2 at pins IO-16 (RX2) and IO-17 (TX2)
+#include &lt;HardwareSerial.h&gt;
+#include &lt;PZEM004Tv30.h&gt;
+
+HardwareSerial PzemSerial2(2);  // Use hwserial UART2 at pins IO-16 (RX2) and IO-17 (TX2)
+// PZEM004Tv30 pzem(&amp;PzemSerial2);
+
+PZEM004Tv30 pzem(&amp;PzemSerial2, 5, 18);
+
+// IPAddress ip(192, 168, 1, 1);
+//end pzem
+
+//pzem variables
+float v = 0;
+float i = 0;
+float p = 0;
+float e = 0;
+
+
+//blynk varables
+BLYNK_CONNECTED() {
+  // Request the latest state from the server
+  Blynk.syncVirtual(VPIN_BUTTON_1);
+  Blynk.syncVirtual(VPIN_BUTTON_2);
+}
+
+// When App button is pushed change switch the state
+
+BLYNK_WRITE(VPIN_BUTTON_1) {
+  toggleState_1 = param.asInt();
+  digitalWrite(RelayPin1, toggleState_1);
+}
+
+BLYNK_WRITE(VPIN_BUTTON_2) {
+  toggleState_2 = param.asInt();
+  digitalWrite(RelayPin2, toggleState_2);
+}
+
+void updateLcdThreshold() {
+  lcd.setCursor(0, 1);
+  lcd.print("                 ");
+  lcd.setCursor(0, 1);
+  lcd.print("OVER LOAD!!!");
+  delay(2000);
+}
+void readPzem() {
+
+  v = pzem.voltage();
+  if (isnan(v)) v = 0.0;
+  if (v &lt; 0.0) v = 0.0;
+  Serial.print(v);
+  Serial.print("V; ");
+
+  i = pzem.current();
+  if (isnan(i)) i = 0.0;
+  if (i &gt;= 0.0) {
+    Serial.print(i);
+    Serial.print("A; ");
+  }
+
+
+  p = pzem.power();
+  if (isnan(p)) p = 0.0;
+  if (p &gt;= 0.0) {
+    Serial.print(p);
+    Serial.print("W; ");
+  }
+
+  e = pzem.energy();
+  if (isnan(e)) e = 0.0;
+  if (e &gt;= 0.0) {
+    Serial.print(e);
+    Serial.print("Wh; ");
+  }
+
+  Serial.println();
+  if (isnan(v) || isnan(i) || isnan(p)) {
+    Serial.println("error at reading values");
+  } else {
+    Blynk.virtualWrite(VPIN_BUTTON_3, v);
+    Blynk.virtualWrite(VPIN_BUTTON_4, i);
+    Blynk.virtualWrite(VPIN_BUTTON_5, p);
+    if (p &gt; overLoadThreshold) {
+      Blynk.logEvent("over_load");
+      Blynk.logEvent("over_load");
+
+      lcd.setCursor(0, 0);
+      lcd.print("                 ");
+      lcd.setCursor(0, 0);
+      lcd.print("P:");
+      lcd.print(p);
+      lcd.setCursor(5, 1);
+      lcd.print("W");
+      lcd.setCursor(7, 0);
+      lcd.print("O:");
+      lcd.print(p - overLoadThreshold);
+      // lcd.setCursor(11, 1);
+      lcd.print("W");
+      updateLcdThreshold();
+            for (int i = 0; i &lt; 5; i++) {
+        beep();
+        delay(1000);
+      }
+      delay(2000);//change this max will be 20,000
+      digitalWrite(RelayPin2, HIGH);
+
+      delay(5000);
+    }
+  }
+  // Blynk.virtualWrite(VPIN_BUTTON_3, 50);
+  // Blynk.virtualWrite(VPIN_BUTTON_4, 100);
+  // Blynk.virtualWrite(VPIN_BUTTON_5, 30);
+
+  delay(1000);
+}
+
+void relayOnOff(int relay) {
+
+  if (relay == 1) {
+    toggleState_1 = !digitalRead(RelayPin1);
+    digitalWrite(RelayPin1, toggleState_1);
+    Serial.println(toggleState_1);
+    // relayState1 = !relayState1; // Toggle the state
+    // delay(50);  // debounce delay
+  }
+  if (relay == 2) {
+    toggleState_2 = !digitalRead(RelayPin2);
+    digitalWrite(RelayPin2, !digitalRead(RelayPin2));
+    Serial.println(toggleState_2);
+    // delay(50);  // debounce delay
+  }
+}
+
+void with_internet() {
+  //Manual Switch Control
+  if (digitalRead(SwitchPin1) == LOW) {
+    delay(200);
+    relayOnOff(1);
+    Blynk.virtualWrite(VPIN_BUTTON_1, toggleState_1);  // Update Button Widget
+  }
+  if (digitalRead(SwitchPin2) == LOW) {
+    delay(200);
+    relayOnOff(2);
+    Blynk.virtualWrite(VPIN_BUTTON_2, toggleState_2);  // Update Button Widget
+  }
+}
+void without_internet() {
+  //Manual Switch Control
+  readPzem();
+  if (digitalRead(SwitchPin1) == LOW) {
+    delay(200);
+    relayOnOff(1);
+  }
+  if (digitalRead(SwitchPin2) == LOW) {
+    delay(200);
+    relayOnOff(2);
+  }
+}
+
+
+
+void checkBlynkStatus() {  // called every 3 seconds by SimpleTimer
+
+  bool isconnected = Blynk.connected();
+  if (isconnected == false) {
+    wifiFlag = 1;
+    digitalWrite(wifiLed, LOW);  //Turn off WiFi LED
+  }
+  if (isconnected == true) {
+    wifiFlag = 0;
+    digitalWrite(wifiLed, HIGH);  //Turn on WiFi LED
+  }
+}
+
+BlynkTimer timer;
+
+void updateLcdInit() {
+  lcd.setCursor(0, 1);
+  lcd.print("Meter!");
+}
+
+void updateLcd() {
+  lcd.setCursor(0, 0);
+  lcd.print("V:");
+  lcd.print(int(v));
+  lcd.setCursor(6, 0);
+  lcd.print("v");
+  lcd.setCursor(8, 0);
+
+  lcd.print("I:");
+  lcd.print(i);
+  lcd.setCursor(15, 0);
+  lcd.print("Amp");
+  lcd.setCursor(0, 1);
+  lcd.print("P:");
+  lcd.print(p);
+  lcd.setCursor(7, 1);
+  lcd.print("W");
+
+  //difference
+  if (p &gt; overLoadThreshold) {
+    lcd.setCursor(8, 0);
+    lcd.print("             ");
+    lcd.setCursor(8, 0);
+    lcd.print("O:");
+    lcd.print(p - overLoadThreshold);
+    // lcd.setCursor(11, 1);
+    lcd.print("W");
+  } else {
+    lcd.setCursor(8, 1);
+    lcd.print("          ");
+  }
+  ///
+
+  lcd.setCursor(16, 1);
+  if (wifiFlag == 0)
+    lcd.print("C");
+  else
+    lcd.print("D");
+}
+void beep() {
+  digitalWrite(buzzer, LOW);
+  delay(2000);
+  digitalWrite(buzzer, HIGH);
+}
+
+// the setup function runs once when you press reset or power the board
+void setup() {
+  lcd.init();
+  // Print a message to the LCD.
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("Smart Power!");
+  lcd.setCursor(3, 1);
+  lcd.print("Meter!");
+  Serial.begin(9600);
+  // pzem.setAddress(ip);
+  // Serial.print("Pzem status : \t");
+  // Serial.println(pzem.setAddress(ip));
+  pinMode(SwitchPin1, INPUT_PULLUP);
+  pinMode(SwitchPin2, INPUT_PULLUP);
+  pinMode(RelayPin1, OUTPUT);
+  pinMode(RelayPin2, OUTPUT);
+  pinMode(buzzer, OUTPUT);
+
+  beep();
+
+  digitalWrite(RelayPin1, HIGH);
+  digitalWrite(RelayPin2, HIGH);
+  delay(2000);
+  if (detectPzem) {
+    lcd.clear();
+    lcd.print("Connecting PZEM");
+    delay(1000);
+    while (true) {
+
+      Serial.println("Connecting to PZEM...");
+      // if(pzem.setAddress(ip))
+      //   break;
+      Serial.println(pzem.readAddress());
+      if (pzem.readAddress() &gt; 0)
+        break;
+      delay(1000);
+    }
+    lcd.clear();
+    lcd.print("PZEM Connected");
+    delay(1000);
+    lcd.clear();
+  }
+  pinMode(wifiLed, OUTPUT);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  timer.setInterval(3000L, checkBlynkStatus);  // check if Blynk server is connected every 3 seconds
+  Blynk.config(AUTH);
+  lcd.clear();
+  // updateLcdInit();
+}
+
+// the loop function runs over and over again forever
+void loop() {
+  if (WiFi.status() != WL_CONNECTED) {
+    //Serial.println("WiFi Not Connected");
+  } else {
+    // Serial.println("WiFi Connected");
+    readPzem();
+    Blynk.run();
+  }
+
+
+  timer.run();  // Initiates SimpleTimer
+  if (wifiFlag == 0)
+    with_internet();
+  else
+    without_internet();
+  updateLcd();
+}</code></pre>
+</body>
+</html>
