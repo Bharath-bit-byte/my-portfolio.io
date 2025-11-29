@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume - Sadam Bharath</title>
+    <style>
+        /* --- General Reset --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5; /* Light grey background */
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* --- Navigation Bar --- */
+        header {
+            background-color: #2c3e50;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+        }
+
+        .nav-btn:hover {
+            background-color: #34495e;
+        }
+
+        /* The Active Button Style */
+        .nav-btn.active {
+            background-color: #3498db; /* Blue highlight */
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+        }
+
+        /* --- Resume Paper Container --- */
+        .resume-container {
+            max-width: 800px; /* Standard A4 width feel */
+            margin: 40px auto;
+            background-color: #ffffff;
+            padding: 50px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Paper shadow effect */
+            border-radius: 4px;
+        }
+
+        /* --- Resume Header Section --- */
+        .resume-header {
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .resume-header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .resume-header h2 {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .contact-info {
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .contact-info a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        /* --- Sections --- */
+        .section-title {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            text-transform: uppercase;
+            border-bottom: 1px solid #ddd;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .content-block {
+            margin-bottom: 15px;
+        }
+
+        .job-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .company-date {
+            font-style: italic;
+            color: #666;
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        ul {
+            list-style-position: inside;
+            margin-left: 10px;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+        /* --- Skills Grid --- */
+        .skills-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        @media (max-width: 600px) {
+            .skills-list {
+                grid-template-columns: 1fr;
+            }
+            .resume-container {
+                padding: 20px;
+                margin: 20px 10px;
+            }
+            nav {
+                gap: 5px;
+            }
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <nav>
+            <a href="portfolio.html" class="nav-btn">Home</a>
+            <a href="AboutPage.html" class="nav-btn">About</a>
+            <a href="SkillsPage.html" class="nav-btn">Skills</a>
+            <a href="ProjectsPage.html" class="nav-btn">Projects</a>
+            <a href="ContactPage.html" class="nav-btn">Contact</a>
+            <a href="ResumePage.html" class="nav-btn active">Resume</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="resume-container">
+            <div class="resume-header">
+                <h1>Sadam Bharath</h1>
+                <h2>Java Full Stack Developer | ECE Graduate</h2>
+                <div class="contact-info">
+                    asdfg@gmail.com | +91-1234567890 | [City, State]<br>
+                    GitHub: <a href="https://github.com/Bharath-bit-byte/my-portfolio.io" target="_blank">Bharath-bit-byte</a> | 
+                    Portfolio: <a href="https://github.com/Bharath-bit-byte/my-portfolio.io/asdfgh" target="_blank">Check Portfolio</a>
+                </div>
+            </div>
+
+            <div class="section-title">Professional Summary</div>
+            <p>
+                Motivated and detail-oriented Electronics and Communication Engineering (ECE) graduate with a strong passion for software development. Proactive learner with a solid foundation in Java Full Stack technologies. Seeking an entry-level Java Web Developer position to utilize skills in backend logic, database management, and web design to contribute to organizational success.
+            </p>
+
+            <div class="section-title">Technical Skills</div>
+            <div class="skills-list">
+                <ul>
+                    <li><strong>Languages:</strong> Java (Core, Collections), SQL</li>
+                    <li><strong>Web Tech:</strong> HTML5, CSS3, JavaScript (ES6)</li>
+                    <li><strong>Frameworks:</strong> Spring Boot, Hibernate</li>
+                </ul>
+                <ul>
+                    <li><strong>Databases:</strong> MySQL, PostgreSQL</li>
+                    <li><strong>Tools:</strong> Git, GitHub, Postman, Maven</li>
+                    <li><strong>IDE:</strong> IntelliJ IDEA, Eclipse</li>
+                </ul>
+            </div>
+
+            <div class="section-title">Projects</div>
+            
+            <div class="content-block">
+                <div class="job-title">1. Personal Portfolio Website</div>
+                <div class="company-date">
+                    <span>Frontend Development</span>
+                    <span><a href="https://github.com/Bharath-bit-byte/my-portfolio.io" target="_blank">View Code</a></span>
+                </div>
+                <ul>
+                    <li>Designed and developed a fully responsive personal portfolio website to showcase skills and projects.</li>
+                    <li>Implemented modern UI/UX principles for a seamless user experience across mobile and desktop devices using HTML, CSS, and JavaScript.</li>
+                </ul>
+            </div>
+
+            <div class="content-block">
+                <div class="job-title">2. E-Commerce Backend System (Example)</div>
+                <div class="company-date">
+                    <span>Backend Development</span>
+                    <span>Java, Spring Boot</span>
+                </div>
+                <ul>
+                    <li>Built a RESTful API for an e-commerce platform handling user registration and product management.</li>
+                    <li>Implemented CRUD operations connecting to a MySQL database using Hibernate ORM.</li>
+                </ul>
+            </div>
+
+            <div class="section-title">Education</div>
+            <div class="content-block">
+                <div class="job-title">B.Tech in Electronics and Communication Engineering (ECE)</div>
+                <div class="company-date">
+                    <span>[Christu jyothi Institute of Technology & Science , Jangaon]</span>
+                    <span>[2025]</span>
+                </div>
+            </div>
+            <div class="content-block">
+                <div class="job-title">Intermediate (Class XII)</div>
+                <div class="company-date">
+                    <span>[Sri Gayatri junior college]</span>
+                    <span>[2021]</span>
+                </div>
+            </div>
+            <div class="content-block">
+                <div class="job-title">School (Class X)</div>
+                <div class="company-date">
+                    <span>[Sri Aurobindo High School]</span>
+                    <span>[2019]</span>
+                </div>
+            </div>
+
+            <div class="section-title">Certifications</div>
+            <ul>
+                <li>Java Full Stack Development Course – [Bharath Tech Institute]</li>
+            </ul>
+
+        </div>
+    </main>
+
+</body>
+</html>

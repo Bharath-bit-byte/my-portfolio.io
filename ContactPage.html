@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Me - Portfolio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- Reuse Basic Styles for Consistency --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f5fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Navbar (Same as Skills Page) */
+        .navbar {
+            background-color: #fff;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: #555;
+            font-weight: 600;
+            padding: 0.5rem 1.5rem;
+            border: 2px solid transparent;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        /* --- Contact Page Specific Styles --- */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header-section h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .header-section p {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        /* Grid for Contact Cards */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        /* Individual Contact Card Styling */
+        .contact-card {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 12px;
+            text-decoration: none; /* Removes underline from links */
+            color: #333;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid #eee;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .icon-circle {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+            color: white;
+            transition: transform 0.3s;
+        }
+
+        .contact-card:hover .icon-circle {
+            transform: scale(1.1);
+        }
+
+        /* Specific Brand Colors */
+        .github-bg { background: linear-gradient(135deg, #333, #1a1a1a); }
+        .linkedin-bg { background: linear-gradient(135deg, #0077b5, #005582); }
+        .instagram-bg { background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }
+        .whatsapp-bg { background: linear-gradient(135deg, #25D366, #128C7E); }
+        .facebook-bg { background: linear-gradient(135deg, #1877F2, #1659b5); }
+        .gmail-bg { background: linear-gradient(135deg, #EA4335, #c5221f); }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .card-subtitle {
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 50px;
+            color: #888;
+            font-size: 0.9rem;
+            border-top: 1px solid #e1e1e1;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <ul class="nav-links">
+            <li><a href="portfolio.html" class="nav-btn">Home</a></li>
+            <li><a href="AboutPage.html" class="nav-btn">About</a></li>
+            <li><a href="SkillsPage.html" class="nav-btn">Skills</a></li>
+            <li><a href="ProjectsPage.html" class="nav-btn">Projects</a></li>
+            <li><a href="ContactPage.html" class="nav-btn active">Contact</a></li>
+            <li><a href="ResumePage.html" class="nav-btn">Resume</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="header-section">
+            <h1>Get in Touch</h1>
+            <p>I am currently open to new opportunities. Feel free to connect with me via social media or drop a mail!</p>
+        </div>
+
+        <div class="contact-grid">
+            
+            <a href="mailto:bharathsadam@gmail.com" class="contact-card">
+                <div class="icon-circle gmail-bg">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="card-title">Gmail</div>
+                <div class="card-subtitle">Send me an email</div>
+            </a>
+
+            <a href="https://www.linkedin.com/in/sadambharath/" target="_blank" class="contact-card">
+                <div class="icon-circle linkedin-bg">
+                    <i class="fab fa-linkedin-in"></i>
+                </div>
+                <div class="card-title">LinkedIn</div>
+                <div class="card-subtitle">Connect professionally</div>
+            </a>
+
+            <a href="https://github.com/Bharath-bit-byte/my-portfolio.io" target="_blank" class="contact-card">
+                <div class="icon-circle github-bg">
+                    <i class="fab fa-github"></i>
+                </div>
+                <div class="card-title">GitHub</div>
+                <div class="card-subtitle">View my code repositories</div>
+            </a>
+
+            <a href="https://wa.me/916301615840" target="_blank" class="contact-card">
+                <div class="icon-circle whatsapp-bg">
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+                <div class="card-title">WhatsApp</div>
+                <div class="card-subtitle">Chat with me directly</div>
+            </a>
+
+            <a href="https://www.instagram.com/bharath_sadam_18/" target="_blank" class="contact-card">
+                <div class="icon-circle instagram-bg">
+                    <i class="fab fa-instagram"></i>
+                </div>
+                <div class="card-title">Instagram</div>
+                <div class="card-subtitle">Follow my daily updates</div>
+            </a>
+
+            <a href="https://www.facebook.com/bharathsadam" target="_blank" class="contact-card">
+                <div class="icon-circle facebook-bg">
+                    <i class="fab fa-facebook-f"></i>
+                </div>
+                <div class="card-title">Facebook</div>
+                <div class="card-subtitle">Join my network</div>
+            </a>
+
+        </div>
+
+        <footer>
+            <p>© 2025 Portfolio. Let's build something amazing together.</p>
+        </footer>
+    </div>
+
+</body>
+</html>

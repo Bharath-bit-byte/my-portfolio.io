@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My_Skills</title>
+
+    <style>
+        body {
+            background-image: url('skillback.webp');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            margin: 010;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+        }
+
+        header { background: #0073b1; color: white; text-align: center; padding: 2rem; border-radius: 20px; }
+
+        .skillpage {
+            background: rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(8px);
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 1200px;
+            margin: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            text-align: center;
+            color: white;
+        }
+
+        .skillDiv {
+            display: flex;
+            gap: 12px;
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 1200px;
+            margin: 20px;
+            text-align: center;
+        }
+
+         .techSkills, .softSkills {
+            /* flex: 1; */
+              background: rgba(0, 0, 0, 0.05);
+              backdrop-filter: blur(8px);
+              padding: 20px;
+              border-radius: 15px;
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              color: white;
+         }
+
+        /* grid for icons with captions */
+        .skill-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            align-items: flex-start;
+            margin-top: 12px;
+        }
+
+        .skill-item {
+            width: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .skill-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .skill-item .caption {
+            font-size: 0.9rem;
+            color: white;
+            line-height: 1.1;
+            text-align: center;
+        }
+
+        .glass-btn {
+           background: rgba(255, 255, 255, 0.04);
+           backdrop-filter: blur(6px);
+           border-radius: 12px;
+           border: 1px solid rgba(255,255,255,0.08);
+           color: black;
+           padding: 0.5rem 0.9rem;
+           font-size: 1rem;
+           cursor: pointer;
+           transition: transform 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+           box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+           width: 110px;
+           height: 34px;
+       }
+       .glass-btn:hover,
+       .glass-btn:focus {
+           transform: translateY(-3px);
+           background: rgba(255,255,255,0.08);
+           outline: none;
+           box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+       }
+
+        .btn-group {
+           display: flex;
+           flex-direction: column;
+           gap: 48px;
+           flex-wrap: wrap;
+           align-items: center;
+       }
+       
+       img {
+           width: 10px;
+           height: 180px;
+           margin: 10px;
+           /* legacy rule kept for non-skill imgs; skill imgs handled above */
+           margin: 10px;
+       }
+
+       h2 {
+           color: black;
+           text-transform: uppercase;
+           letter-spacing: 1px;
+           margin-top: 0;
+           font-size: 1.8rem;
+           text-align: center;
+       }
+    </style>
+
+    <script>
+        function HomePage() {
+            window.location.href = "portfolio.html";
+        }
+        function AboutPage() {
+            window.location.href = "AboutPage.html";
+        }
+        function ProjectsPage() {
+            window.location.href = "ProjectsPage.html";
+        }
+        function ContactPage() {
+            window.location.href = "ContactPage.html";
+        }
+        function ResumePage() {
+            window.location.href = "ResumePage.html";
+        }
+    </script>
+
+</head>
+<body>
+    <h1 style="color: turquoise;">My Skills</h1>
+        <div class="skillDiv">
+        <div class="btn-group">
+        <button class="glass-btn" onclick="HomePage()" aria-label="Go  to home" ><b>HOME</b></button>
+        <button class="glass-btn" onclick="AboutPage()" aria-label="Go  to about"><b>ABOUT</b></button>
+        <button class="glass-btn" onclick="SkillsPage()" aria-label="Go  to skills" style="color: white;"><b>SKILLS</b></button>
+        <button class="glass-btn" onclick="ProjectsPage()" aria-label="Go  to projects"><b>PROJECTS</b></button>
+        <button class="glass-btn" onclick="ContactPage()" aria-label="Go  to contact"><b>CONTACT</b></button>
+        <button class="glass-btn" onclick="ResumePage()" aria-label="Go  to resume"><b>RESUME</b></button>
+        </div>
+            <div class="techSkills">
+                <h2>Tech Skills</h2>
+                <div class="skill-grid">
+                    <div class="skill-item">
+                        <img src="java-coffee-cup-logo.png" alt="Java logo">
+                        <div class="caption">Java</div>
+                    </div>
+                    <div class="skill-item">
+                        <img src="JavaScript.png" alt="JavaScript logo">
+                        <div class="caption">JavaScript</div>
+                    </div>
+                    <div class="skill-item">
+                        <img src="html5.png" alt="HTML5 logo">
+                        <div class="caption">HTML5</div>
+                    </div>
+                    <div class="skill-item">
+                        <img src="CSS-3.png" alt="CSS3 logo">
+                        <div class="caption">CSS3</div>
+                    </div>
+                    <div class="skill-item">
+                        <img src="STSimg.png" alt="Spring Tool Suite logo">
+                        <div class="caption">Spring Tool Suite</div>
+                    </div>
+                    <div class="skill-item">
+                        <img src="eclipse-ideIMG.webp" alt="Eclipse IDE logo">
+                        <div class="caption">Eclipse IDE</div>
+                    </div>
+                    <div class="skill-item">
+                        <img src="GitHub.png" alt="GitHub logo">
+                        <div class="caption">GitHub</div>
+                    </div>
+                    <div class="skill-item">
+                        <img src="PostMan.png" alt="Postman logo">
+                        <div class="caption">Postman</div>
+                    </div>
+                    <div class="skill-item">
+                        <img src="mysql.png" alt="MySQL logo">
+                        <div class="caption">MySQL</div>
+                    </div>
+                    <div class="skill-item">
+                        <img src="vs_codeIMG.jpg" alt="VS Code logo">
+                        <div class="caption">VS Code</div>
+                    </div>
+                </div>
+            </div>
+            <div class="softSkills">
+                <h2>Soft Skills</h2>
+                <ul>
+                    <li>Analytical Problem Solving</li>
+                    <li>Attention to Detail and Rigor</li>
+                    <li>Effective Communication</li>
+                    <li>Team Collaboration</li>
+                    <li>Problem-Solving</li>
+                    <li>Adaptability</li>
+                    <li>Time Management</li>
+                </ul>
+            </div>
+        </div>
+</body>
+</html>
